@@ -14,6 +14,8 @@ export interface AgentServiceState {
     completedTasks: number;
     failedTasks: number;
     uptime: number;
+    collaborationCount: number;
+    knowledgeBaseSize: number;
   };
 }
 
@@ -28,7 +30,9 @@ export function useAgentService() {
       pendingTasks: 0,
       completedTasks: 0,
       failedTasks: 0,
-      uptime: 0
+      uptime: 0,
+      collaborationCount: 0,
+      knowledgeBaseSize: 0
     }
   });
 
@@ -52,7 +56,11 @@ export function useAgentService() {
       'taskAdded',
       'taskStarted',
       'taskCompleted',
-      'taskFailed'
+      'taskFailed',
+      'collaborationEnabled',
+      'knowledgeShared',
+      'messageSent',
+      'agentOptimized'
     ];
 
     events.forEach(event => {
@@ -67,7 +75,7 @@ export function useAgentService() {
     };
   }, [updateState]);
 
-  const addAgent = useCallback((agent: Omit<Agent, 'id' | 'lastActivity'>) => {
+  const addAgent = useCallback((agent: Omit<Agent, 'id' | 'lastActivity' | 'performance' | 'collaboration'>) => {
     return agentService.addAgent(agent);
   }, []);
 
@@ -95,6 +103,22 @@ export function useAgentService() {
     return agentService.getTasksByAgent(agentId);
   }, []);
 
+  const enableCollaboration = useCallback((agentId1: string, agentId2: string) => {
+    return agentService.enableCollaboration(agentId1, agentId2);
+  }, []);
+
+  const shareKnowledge = useCallback((fromAgentId: string, toAgentId: string, knowledge: string) => {
+    return agentService.shareKnowledge(fromAgentId, toAgentId, knowledge);
+  }, []);
+
+  const getCollaborationNetwork = useCallback(() => {
+    return agentService.getCollaborationNetwork();
+  }, []);
+
+  const getKnowledgeBase = useCallback(() => {
+    return agentService.getKnowledgeBase();
+  }, []);
+
   return {
     ...state,
     addAgent,
@@ -103,6 +127,10 @@ export function useAgentService() {
     assignTask,
     launchSpecializedAgent,
     getAgent,
-    getTasksByAgent
+    getTasksByAgent,
+    enableCollaboration,
+    shareKnowledge,
+    getCollaborationNetwork,
+    getKnowledgeBase
   };
 }
