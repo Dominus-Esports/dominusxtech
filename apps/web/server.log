@@ -1,0 +1,22 @@
+   ▲ Next.js 15.4.3
+   - Local:        http://localhost:3000
+   - Network:      http://172.30.0.2:3000
+
+ ✓ Starting...
+ ✓ Ready in 1220ms
+ ○ Compiling /api/agents ...
+ ✓ Compiled /api/agents in 1582ms (285 modules)
+ GET /api/agents 200 in 1737ms
+ ○ Compiling / ...
+ ✓ Compiled / in 1728ms (703 modules)
+ GET / 200 in 2043ms
+ ✓ Compiled /agents in 333ms (686 modules)
+ GET /agents 200 in 520ms
+ POST /api/agents 200 in 24ms
+ GET /api/agents 200 in 10ms
+ GET /api/agents 200 in 8ms
+ GET / 200 in 73ms
+ GET /api/agents 200 in 7ms
+ POST /api/agents 200 in 7ms
+ POST /api/agents 200 in 5ms
+ GET /api/agents 200 in 5ms
