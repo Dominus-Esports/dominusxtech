@@ -6,6 +6,8 @@ import AgentCard from './AgentCard';
 import TaskList from './TaskList';
 import SystemStats from './SystemStats';
 import AgentLauncher from './AgentLauncher';
+import CollaborationNetwork from './CollaborationNetwork';
+import NotificationCenter from './NotificationCenter';
 import styles from './AgentDashboard.module.css';
 
 export default function AgentDashboard() {
@@ -45,6 +47,7 @@ export default function AgentDashboard() {
       <header className={styles.header}>
         <h1>Agent Management System</h1>
         <div className={styles.headerActions}>
+          <NotificationCenter />
           <button 
             className={styles.launchButton}
             onClick={() => setShowLauncher(true)}
@@ -101,6 +104,12 @@ export default function AgentDashboard() {
             tasks={tasks}
             agents={agents}
             onAssignTask={handleAssignTask}
+          />
+          
+          <CollaborationNetwork
+            agents={agents}
+            selectedAgentId={selectedAgent}
+            onAgentSelect={setSelectedAgent}
           />
         </div>
       </div>

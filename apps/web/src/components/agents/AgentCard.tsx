@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Agent, Task } from '../../services/agentService';
+import AgentPerformance from './AgentPerformance';
 import styles from './AgentCard.module.css';
 
 interface AgentCardProps {
@@ -24,6 +25,7 @@ export default function AgentCard({
   onSelect
 }: AgentCardProps) {
   const [showTaskForm, setShowTaskForm] = useState(false);
+  const [showPerformance, setShowPerformance] = useState(false);
   const [taskType, setTaskType] = useState('code_review');
   const [taskDescription, setTaskDescription] = useState('');
 
@@ -134,6 +136,16 @@ export default function AgentCard({
         </button>
 
         <button
+          className={styles.performanceButton}
+          onClick={(e) => {
+            e.stopPropagation();
+            setShowPerformance(!showPerformance);
+          }}
+        >
+          Performance
+        </button>
+
+        <button
           className={styles.removeButton}
           onClick={(e) => {
             e.stopPropagation();
@@ -196,6 +208,13 @@ export default function AgentCard({
             </div>
           ))}
         </div>
+      )}
+
+      {showPerformance && (
+        <AgentPerformance 
+          agent={agent}
+          isExpanded={true}
+        />
       )}
     </div>
   );
