@@ -183,11 +183,25 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    // Add better error handling for JSON parsing
+    let body;
+    try {
+      body = await request.json();
+    } catch (parseError) {
+      console.error('JSON parsing error:', parseError);
+      return NextResponse.json({
+        error: 'Invalid JSON in request body',
+        details: parseError instanceof Error ? parseError.message : 'Unknown parsing error'
+      }, { status: 400 });
+    }
+
     const { packageId, customerEmail } = body;
 
     if (!packageId || !customerEmail) {
-      return NextResponse.json({ error: 'Missing packageId or customerEmail' }, { status: 400 });
+      return NextResponse.json({
+        error: 'Missing packageId or customerEmail',
+        received: { packageId, customerEmail }
+      }, { status: 400 });
     }
 
     // Try real API first, fallback to mock
@@ -209,6 +223,9 @@ export async function POST(request: NextRequest) {
     }
   } catch (error) {
     console.error('Airalo order creation error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({
+      error: 'Internal server error',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
   }
 }
