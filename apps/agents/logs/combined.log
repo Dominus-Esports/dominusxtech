@@ -1,0 +1,31 @@
+{"level":"info","message":"Orchestrator started on port 3001","service":"Orchestrator","timestamp":"2025-07-25T09:52:39.487Z"}
+{"level":"info","message":"WebSocket server ready for connections","service":"Orchestrator","timestamp":"2025-07-25T09:52:39.488Z"}
+{"level":"info","message":"Health check available at http://localhost:3001/health","service":"Orchestrator","timestamp":"2025-07-25T09:52:39.489Z"}
+{"level":"info","message":"AgentManager stopped","service":"AgentManager","timestamp":"2025-07-25T09:52:48.872Z"}
+{"level":"info","message":"Orchestrator started on port 3001","service":"Orchestrator","timestamp":"2025-07-25T09:52:52.739Z"}
+{"level":"info","message":"WebSocket server ready for connections","service":"Orchestrator","timestamp":"2025-07-25T09:52:52.740Z"}
+{"level":"info","message":"Health check available at http://localhost:3001/health","service":"Orchestrator","timestamp":"2025-07-25T09:52:52.741Z"}
+{"level":"info","message":"Client connected: ijZIwojkNqsyjTnsAAAD","service":"Orchestrator","timestamp":"2025-07-25T09:53:27.996Z"}
+{"level":"info","message":"Client connected: t6I66K2qlkO7Mi6SAAAE","service":"Orchestrator","timestamp":"2025-07-25T09:53:28.000Z"}
+{"level":"info","message":"Connected to orchestrator","service":"CursorMainAgent","timestamp":"2025-07-25T09:53:28.001Z"}
+{"level":"info","message":"Agent registered: S.O.L. - Cursor Main Agent (7e2f8ec5-7de5-4a24-ab1c-741997968ab8)","service":"AgentManager","timestamp":"2025-07-25T09:53:28.003Z"}
+{"level":"info","message":"Registered as agent: S.O.L. - Cursor Main Agent (7e2f8ec5-7de5-4a24-ab1c-741997968ab8)","service":"CursorMainAgent","timestamp":"2025-07-25T09:53:28.004Z"}
+{"level":"info","message":"Client connected: HUGH4S9ftG28UAwKAAAF","service":"Orchestrator","timestamp":"2025-07-25T09:53:28.005Z"}
+{"level":"info","message":"TestRunner connected to orchestrator","service":"TestRunnerAgent","timestamp":"2025-07-25T09:53:28.005Z"}
+{"level":"info","message":"Registered as agent: S.O.L. - Cursor Main Agent (7e2f8ec5-7de5-4a24-ab1c-741997968ab8)","service":"CursorMainAgent","timestamp":"2025-07-25T09:53:28.006Z"}
+{"level":"info","message":"DeploymentAgent connected to orchestrator","service":"DeploymentAgent","timestamp":"2025-07-25T09:53:28.008Z"}
+{"level":"info","message":"TestRunner registered as agent: S.O.L. - Cursor Main Agent (7e2f8ec5-7de5-4a24-ab1c-741997968ab8)","service":"TestRunnerAgent","timestamp":"2025-07-25T09:53:28.009Z"}
+{"level":"info","message":"Agent registered: Test Runner Agent (fd8d320d-049b-4f6a-ae4c-2073d53d8daf)","service":"AgentManager","timestamp":"2025-07-25T09:53:28.009Z"}
+{"level":"info","message":"Registered as agent: Test Runner Agent (fd8d320d-049b-4f6a-ae4c-2073d53d8daf)","service":"CursorMainAgent","timestamp":"2025-07-25T09:53:28.010Z"}
+{"level":"info","message":"Agent registered: Deployment Agent (292a90ea-c9d8-4477-9fd0-4136aca72ee7)","service":"AgentManager","timestamp":"2025-07-25T09:53:28.010Z"}
+{"level":"info","message":"DeploymentAgent registered as agent: Test Runner Agent (fd8d320d-049b-4f6a-ae4c-2073d53d8daf)","service":"DeploymentAgent","timestamp":"2025-07-25T09:53:28.010Z"}
+{"level":"info","message":"Registered as agent: Deployment Agent (292a90ea-c9d8-4477-9fd0-4136aca72ee7)","service":"CursorMainAgent","timestamp":"2025-07-25T09:53:28.011Z"}
+{"level":"info","message":"DeploymentAgent registered as agent: Deployment Agent (292a90ea-c9d8-4477-9fd0-4136aca72ee7)","service":"DeploymentAgent","timestamp":"2025-07-25T09:53:28.010Z"}
+{"level":"info","message":"DeploymentAgent registered as agent: Deployment Agent (292a90ea-c9d8-4477-9fd0-4136aca72ee7)","service":"DeploymentAgent","timestamp":"2025-07-25T09:53:28.011Z"}
+{"level":"info","message":"TestRunner registered as agent: Test Runner Agent (fd8d320d-049b-4f6a-ae4c-2073d53d8daf)","service":"TestRunnerAgent","timestamp":"2025-07-25T09:53:28.011Z"}
+{"level":"info","message":"TestRunner registered as agent: Test Runner Agent (fd8d320d-049b-4f6a-ae4c-2073d53d8daf)","service":"TestRunnerAgent","timestamp":"2025-07-25T09:53:28.012Z"}
+{"level":"info","message":"TestRunner registered as agent: Deployment Agent (292a90ea-c9d8-4477-9fd0-4136aca72ee7)","service":"TestRunnerAgent","timestamp":"2025-07-25T09:53:28.012Z"}
+{"level":"info","message":"Client disconnected: ijZIwojkNqsyjTnsAAAD","service":"Orchestrator","timestamp":"2025-07-25T09:53:37.424Z"}
+{"level":"info","message":"Client disconnected: t6I66K2qlkO7Mi6SAAAE","service":"Orchestrator","timestamp":"2025-07-25T09:53:37.425Z"}
+{"level":"info","message":"Client disconnected: HUGH4S9ftG28UAwKAAAF","service":"Orchestrator","timestamp":"2025-07-25T09:53:37.425Z"}
+{"level":"info","message":"Task created: 3020c7dc-ecb8-475f-b765-768824cd8eff for agent 7e2f8ec5-7de5-4a24-ab1c-741997968ab8","service":"AgentManager","timestamp":"2025-07-25T09:53:49.459Z"}
