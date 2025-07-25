@@ -6,7 +6,11 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "agent:service": "node scripts/agentService.js",
+    "agent:launch": "node scripts/agentService.js launch",
+    "agent:list": "node scripts/agentService.js list",
+    "agent:status": "node scripts/agentService.js status"
   },
   "dependencies": {
     "react": "19.1.0",
