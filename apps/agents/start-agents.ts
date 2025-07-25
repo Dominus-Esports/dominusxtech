@@ -3,6 +3,8 @@
 import { CursorMainAgent } from './src/agents/cursor-main-agent';
 import { TestRunnerAgent } from './src/agents/test-runner-agent';
 import { DeploymentAgent } from './src/agents/deployment-agent';
+import { CodeAssistantAgent } from './src/agents/code-assistant-agent';
+import { MonitoringAgent } from './src/agents/monitoring-agent';
 
 async function startAgents() {
   console.log('🚀 Starting Multi-Agent System...\n');
@@ -19,10 +21,18 @@ async function startAgents() {
   console.log('🚀 Starting Deployment Agent...');
   const deployAgent = new DeploymentAgent();
 
+  // Start Code Assistant Agent
+  console.log('💻 Starting Code Assistant Agent...');
+  const codeAgent = new CodeAssistantAgent();
+
+  // Start Monitoring Agent
+  console.log('📊 Starting Monitoring Agent...');
+  const monitorAgent = new MonitoringAgent();
+
   // Wait for agents to be ready
   console.log('\n⏳ Waiting for agents to connect...');
   
-  const maxWaitTime = 15000; // 15 seconds
+  const maxWaitTime = 20000; // 20 seconds for more agents
   const checkInterval = 1000; // 1 second
   let elapsed = 0;
 
@@ -30,10 +40,12 @@ async function startAgents() {
     const mainReady = mainAgent.isReady();
     const testReady = testAgent.isReady();
     const deployReady = deployAgent.isReady();
+    const codeReady = codeAgent.isReady();
+    const monitorReady = monitorAgent.isReady();
     
-    console.log(`\r⏳ Main Agent: ${mainReady ? '🟢' : '🔴'} | Test Agent: ${testReady ? '🟢' : '🔴'} | Deploy Agent: ${deployReady ? '🟢' : '🔴'}`);
+    console.log(`\r⏳ Main: ${mainReady ? '🟢' : '🔴'} | Test: ${testReady ? '🟢' : '🔴'} | Deploy: ${deployReady ? '🟢' : '🔴'} | Code: ${codeReady ? '🟢' : '🔴'} | Monitor: ${monitorReady ? '🟢' : '🔴'}`);
     
-    if (mainReady && testReady && deployReady) {
+    if (mainReady && testReady && deployReady && codeReady && monitorReady) {
       console.log('\n\n🎉 All agents are ready!');
       console.log('============================================');
       console.log('📊 Orchestrator: http://localhost:3001/health');
@@ -42,6 +54,8 @@ async function startAgents() {
       console.log('   • S.O.L. - Cursor Main Agent 🟢');
       console.log('   • Test Runner Agent 🟢');
       console.log('   • Deployment Agent 🟢');
+      console.log('   • Code Assistant Agent 🟢');
+      console.log('   • Monitoring Agent 🟢');
       console.log('\n💡 You can now:');
       console.log('   • View system health: curl http://localhost:3001/health');
       console.log('   • List agents: curl http://localhost:3001/agents');
@@ -54,6 +68,8 @@ async function startAgents() {
         mainAgent.disconnect();
         testAgent.disconnect();
         deployAgent.disconnect();
+        codeAgent.disconnect();
+        monitorAgent.disconnect();
         process.exit(0);
       });
       

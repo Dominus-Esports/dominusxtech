@@ -35,3 +35,4 @@
 {"level":"warn","message":"Agent marked as offline due to inactivity: Test Runner Agent","service":"AgentManager","timestamp":"2025-07-25T09:55:52.835Z"}
 {"level":"info","message":"Agent status updated: Deployment Agent -> offline","service":"AgentManager","timestamp":"2025-07-25T09:55:52.836Z"}
 {"level":"warn","message":"Agent marked as offline due to inactivity: Deployment Agent","service":"AgentManager","timestamp":"2025-07-25T09:55:52.836Z"}
+{"level":"info","message":"Task created: 943aef84-b2dd-45fc-bf42-2df7e2d0439e for agent 7e2f8ec5-7de5-4a24-ab1c-741997968ab8","service":"AgentManager","timestamp":"2025-07-25T10:10:28.479Z"}

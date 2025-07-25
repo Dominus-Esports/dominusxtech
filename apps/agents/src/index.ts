@@ -4,6 +4,7 @@ import { Server } from 'socket.io';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import path from 'path';
 import { AgentManager } from './services/agent-manager';
 import { AgentType, AgentStatus, TaskStatus } from './types';
 import { Logger } from './utils/logger';
@@ -61,6 +62,9 @@ class Orchestrator {
     
     this.app.use(express.json({ limit: '10mb' }));
     this.app.use(express.urlencoded({ extended: true }));
+    
+    // Serve static files for dashboard
+    this.app.use('/dashboard', express.static(path.join(__dirname, 'dashboard')));
   }
 
   private setupRoutes(): void {
