@@ -30,14 +30,16 @@ export default function Home() {
             />
             Manage Agents
           </Link>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
+          <Link href="/dashboard" className={styles.secondary}>
+            <Image
+              className={styles.logo}
+              src="/vercel.svg"
+              alt="Dashboard icon"
+              width={20}
+              height={20}
+            />
+            System Dashboard
+          </Link>
         </div>
       </main>
       <footer className={styles.footer}>

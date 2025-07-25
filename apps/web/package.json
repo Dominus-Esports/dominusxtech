@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "background": "node scripts/backgroundService.js",
-    "dev:full": "concurrently \"npm run dev\" \"npm run background\""
+    "dev:full": "concurrently \"npm run dev\" \"npm run background\"",
+    "launch-agents": "node scripts/launchAgents.js",
+    "demo": "node scripts/demo.js"
   },
   "dependencies": {
     "react": "19.1.0",

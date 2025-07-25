@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import styles from './agents.module.css';
 
 interface Agent {
@@ -14,6 +14,17 @@ interface Agent {
     used: number;
     total: number;
   };
+  processId?: number;
+  config: AgentConfig;
+}
+
+interface AgentConfig {
+  name: string;
+  type: Agent['type'];
+  capabilities: string[];
+  maxMemory: number;
+  autoRestart: boolean;
+  environment: Record<string, string>;
 }
 
 interface AgentService {
@@ -22,6 +33,12 @@ interface AgentService {
   status: 'running' | 'stopped' | 'starting' | 'error';
   agents: Agent[];
   uptime: string;
+  startTime: Date;
+}
+
+interface WebSocketMessage {
+  type: string;
+  data: any;
 }
 
 export default function AgentsPage() {
@@ -34,51 +51,140 @@ export default function AgentsPage() {
     type: 'assistant' as Agent['type'],
     capabilities: [] as string[]
   });
+  const [messageToSend, setMessageToSend] = useState('');
+  const [logs, setLogs] = useState<string[]>([]);
+  const [showModal, setShowModal] = useState(false);
+  const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    // Simulate WebSocket connection
-    const connectToAgentService = () => {
-      setIsConnected(true);
-      // Initialize with mock data
-      setServices([
-        {
-          id: 'sol-main',
-          name: 'S.O.L. - Main Agent',
-          status: 'running',
-          uptime: '2h 34m',
-          agents: [
-            {
-              id: 'sol-1',
-              name: 'S.O.L. Core',
-              status: 'active',
-              type: 'assistant',
-              lastActivity: '2 minutes ago',
-              capabilities: ['Code Analysis', 'File Management', 'Git Operations'],
-              memory: { used: 45, total: 100 }
-            }
-          ]
+    // Initialize WebSocket connection
+    const connectWebSocket = () => {
+      const ws = new WebSocket('ws://localhost:3001');
+      wsRef.current = ws;
+
+      ws.onopen = () => {
+        setIsConnected(true);
+        addLog('Connected to background service');
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const message: WebSocketMessage = JSON.parse(event.data);
+          handleWebSocketMessage(message);
+        } catch (error) {
+          console.error('Error parsing WebSocket message:', error);
         }
-      ]);
+      };
+
+      ws.onclose = () => {
+        setIsConnected(false);
+        addLog('Disconnected from background service');
+        // Reconnect after 5 seconds
+        setTimeout(connectWebSocket, 5000);
+      };
+
+      ws.onerror = (error) => {
+        console.error('WebSocket error:', error);
+        addLog('WebSocket connection error');
+      };
     };
 
-    connectToAgentService();
+    connectWebSocket();
+
+    return () => {
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
+    };
   }, []);
+
+  const handleWebSocketMessage = (message: WebSocketMessage) => {
+    switch (message.type) {
+      case 'initial':
+        setAgents(message.data.agents || []);
+        setServices(message.data.services || []);
+        addLog('Received initial agent data');
+        break;
+      case 'agent:created':
+        setAgents(prev => [...prev, message.data]);
+        addLog(`Agent created: ${message.data.name}`);
+        break;
+      case 'agent:launched':
+        setAgents(prev => prev.map(agent => 
+          agent.id === message.data.id ? message.data : agent
+        ));
+        addLog(`Agent launched: ${message.data.name}`);
+        break;
+      case 'agent:terminated':
+        setAgents(prev => prev.map(agent => 
+          agent.id === message.data.id ? message.data : agent
+        ));
+        addLog(`Agent terminated: ${message.data.name}`);
+        break;
+      case 'agent:restarted':
+        setAgents(prev => prev.map(agent => 
+          agent.id === message.data.id ? message.data : agent
+        ));
+        addLog(`Agent restarted: ${message.data.name}`);
+        break;
+      case 'agent:activity':
+        setAgents(prev => prev.map(agent => 
+          agent.id === message.data.agent.id ? message.data.agent : agent
+        ));
+        addLog(`Agent activity: ${message.data.agent.name} - ${message.data.activity}`);
+        break;
+      case 'agent:response':
+        addLog(`Agent response: ${message.data.response}`);
+        break;
+    }
+  };
+
+  const addLog = (message: string) => {
+    const timestamp = new Date().toLocaleTimeString();
+    setLogs(prev => [...prev.slice(-49), `[${timestamp}] ${message}`]);
+  };
+
+  const sendWebSocketMessage = (type: string, data: any) => {
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify({ type, data }));
+    }
+  };
 
   const launchNewAgent = () => {
     if (!newAgentConfig.name) return;
 
-    const newAgent: Agent = {
-      id: `agent-${Date.now()}`,
+    const agentData = {
       name: newAgentConfig.name,
-      status: 'idle',
       type: newAgentConfig.type,
-      lastActivity: 'Just launched',
       capabilities: newAgentConfig.capabilities,
-      memory: { used: 0, total: 100 }
+      maxMemory: 100,
+      autoRestart: true,
+      environment: {}
     };
 
-    setAgents(prev => [...prev, newAgent]);
+    sendWebSocketMessage('create_agent', agentData);
     setNewAgentConfig({ name: '', type: 'assistant', capabilities: [] });
+    setShowModal(false);
+  };
+
+  const launchAgent = (agentId: string) => {
+    sendWebSocketMessage('launch_agent', { agentId });
+  };
+
+  const terminateAgent = (agentId: string) => {
+    sendWebSocketMessage('terminate_agent', { agentId });
+  };
+
+  const restartAgent = (agentId: string) => {
+    sendWebSocketMessage('restart_agent', { agentId });
+  };
+
+  const sendMessageToAgent = (agentId: string, message: string) => {
+    if (!message.trim()) return;
+    
+    sendWebSocketMessage('send_message', { agentId, message });
+    setMessageToSend('');
+    addLog(`Message sent to agent: ${message}`);
   };
 
   const getStatusColor = (status: Agent['status']) => {
@@ -98,6 +204,17 @@ export default function AgentsPage() {
       case 'starting': return '#f59e0b';
       case 'error': return '#ef4444';
       default: return '#6b7280';
+    }
+  };
+
+  const getAgentTypeIcon = (type: Agent['type']) => {
+    switch (type) {
+      case 'assistant': return '🤖';
+      case 'coder': return '💻';
+      case 'reviewer': return '🔍';
+      case 'tester': return '🧪';
+      case 'custom': return '⚙️';
+      default: return '🤖';
     }
   };
 
@@ -134,7 +251,7 @@ export default function AgentsPage() {
                 <div className={styles.serviceAgents}>
                   {service.agents.map(agent => (
                     <div key={agent.id} className={styles.agentItem}>
-                      <span>{agent.name}</span>
+                      <span>{getAgentTypeIcon(agent.type)} {agent.name}</span>
                       <div 
                         className={styles.statusDot} 
                         style={{ backgroundColor: getStatusColor(agent.status) }}
@@ -149,8 +266,8 @@ export default function AgentsPage() {
 
         <div className={styles.agentsSection}>
           <div className={styles.agentsHeader}>
-            <h2>Active Agents</h2>
-            <button className={styles.launchButton} onClick={() => setNewAgentConfig({ name: '', type: 'assistant', capabilities: [] })}>
+            <h2>Active Agents ({agents.length})</h2>
+            <button className={styles.launchButton} onClick={() => setShowModal(true)}>
               + Launch New Agent
             </button>
           </div>
@@ -163,7 +280,10 @@ export default function AgentsPage() {
                 onClick={() => setSelectedAgent(agent)}
               >
                 <div className={styles.agentHeader}>
-                  <h3>{agent.name}</h3>
+                  <div className={styles.agentTitle}>
+                    <span className={styles.agentIcon}>{getAgentTypeIcon(agent.type)}</span>
+                    <h3>{agent.name}</h3>
+                  </div>
                   <div 
                     className={styles.statusDot} 
                     style={{ backgroundColor: getStatusColor(agent.status) }}
@@ -173,7 +293,7 @@ export default function AgentsPage() {
                   <p>Type: {agent.type}</p>
                   <p>Last Activity: {agent.lastActivity}</p>
                   <div className={styles.memoryBar}>
-                    <span>Memory: {agent.memory.used}%</span>
+                    <span>Memory: {agent.memory.used.toFixed(1)}%</span>
                     <div className={styles.memoryProgress}>
                       <div 
                         className={styles.memoryFill} 
@@ -186,6 +306,35 @@ export default function AgentsPage() {
                   {agent.capabilities.map(cap => (
                     <span key={cap} className={styles.capability}>{cap}</span>
                   ))}
+                </div>
+                <div className={styles.agentActions}>
+                  <button 
+                    className={styles.actionButton}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      launchAgent(agent.id);
+                    }}
+                  >
+                    Launch
+                  </button>
+                  <button 
+                    className={styles.actionButton}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      restartAgent(agent.id);
+                    }}
+                  >
+                    Restart
+                  </button>
+                  <button 
+                    className={styles.actionButton}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      terminateAgent(agent.id);
+                    }}
+                  >
+                    Terminate
+                  </button>
                 </div>
               </div>
             ))}
@@ -206,21 +355,55 @@ export default function AgentsPage() {
                 <strong>Last Activity:</strong> {selectedAgent.lastActivity}
               </div>
               <div>
-                <strong>Memory Usage:</strong> {selectedAgent.memory.used}% / {selectedAgent.memory.total}%
+                <strong>Memory Usage:</strong> {selectedAgent.memory.used.toFixed(1)}% / {selectedAgent.memory.total}%
+              </div>
+              <div>
+                <strong>Process ID:</strong> {selectedAgent.processId || 'N/A'}
+              </div>
+              <div>
+                <strong>Capabilities:</strong> {selectedAgent.capabilities.length}
               </div>
             </div>
-            <div className={styles.agentActions}>
-              <button className={styles.actionButton}>Send Message</button>
-              <button className={styles.actionButton}>View Logs</button>
-              <button className={styles.actionButton}>Restart</button>
-              <button className={styles.actionButton}>Terminate</button>
+            
+            <div className={styles.messageSection}>
+              <h4>Send Message to Agent</h4>
+              <div className={styles.messageInput}>
+                <input
+                  type="text"
+                  value={messageToSend}
+                  onChange={(e) => setMessageToSend(e.target.value)}
+                  placeholder="Type your message..."
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      sendMessageToAgent(selectedAgent.id, messageToSend);
+                    }
+                  }}
+                />
+                <button 
+                  onClick={() => sendMessageToAgent(selectedAgent.id, messageToSend)}
+                  className={styles.sendButton}
+                >
+                  Send
+                </button>
+              </div>
+            </div>
+
+            <div className={styles.logsSection}>
+              <h4>Activity Logs</h4>
+              <div className={styles.logsContainer}>
+                {logs.slice(-10).map((log, index) => (
+                  <div key={index} className={styles.logEntry}>
+                    {log}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}
       </div>
 
       {/* New Agent Modal */}
-      {newAgentConfig.name === '' && (
+      {showModal && (
         <div className={styles.modal}>
           <div className={styles.modalContent}>
             <h3>Launch New Agent</h3>
@@ -239,11 +422,11 @@ export default function AgentsPage() {
                 value={newAgentConfig.type}
                 onChange={(e) => setNewAgentConfig(prev => ({ ...prev, type: e.target.value as Agent['type'] }))}
               >
-                <option value="assistant">Assistant</option>
-                <option value="coder">Coder</option>
-                <option value="reviewer">Reviewer</option>
-                <option value="tester">Tester</option>
-                <option value="custom">Custom</option>
+                <option value="assistant">🤖 Assistant</option>
+                <option value="coder">💻 Coder</option>
+                <option value="reviewer">🔍 Reviewer</option>
+                <option value="tester">🧪 Tester</option>
+                <option value="custom">⚙️ Custom</option>
               </select>
             </div>
             <div className={styles.formGroup}>
@@ -277,7 +460,7 @@ export default function AgentsPage() {
               <button onClick={launchNewAgent} className={styles.launchButton}>
                 Launch Agent
               </button>
-              <button onClick={() => setNewAgentConfig({ name: '', type: 'assistant', capabilities: [] })} className={styles.cancelButton}>
+              <button onClick={() => setShowModal(false)} className={styles.cancelButton}>
                 Cancel
               </button>
             </div>
