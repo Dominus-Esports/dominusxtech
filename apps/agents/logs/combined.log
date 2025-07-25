@@ -29,3 +29,9 @@
 {"level":"info","message":"Client disconnected: t6I66K2qlkO7Mi6SAAAE","service":"Orchestrator","timestamp":"2025-07-25T09:53:37.425Z"}
 {"level":"info","message":"Client disconnected: HUGH4S9ftG28UAwKAAAF","service":"Orchestrator","timestamp":"2025-07-25T09:53:37.425Z"}
 {"level":"info","message":"Task created: 3020c7dc-ecb8-475f-b765-768824cd8eff for agent 7e2f8ec5-7de5-4a24-ab1c-741997968ab8","service":"AgentManager","timestamp":"2025-07-25T09:53:49.459Z"}
+{"level":"info","message":"Agent status updated: S.O.L. - Cursor Main Agent -> offline","service":"AgentManager","timestamp":"2025-07-25T09:55:52.833Z"}
+{"level":"warn","message":"Agent marked as offline due to inactivity: S.O.L. - Cursor Main Agent","service":"AgentManager","timestamp":"2025-07-25T09:55:52.835Z"}
+{"level":"info","message":"Agent status updated: Test Runner Agent -> offline","service":"AgentManager","timestamp":"2025-07-25T09:55:52.835Z"}
+{"level":"warn","message":"Agent marked as offline due to inactivity: Test Runner Agent","service":"AgentManager","timestamp":"2025-07-25T09:55:52.835Z"}
+{"level":"info","message":"Agent status updated: Deployment Agent -> offline","service":"AgentManager","timestamp":"2025-07-25T09:55:52.836Z"}
+{"level":"warn","message":"Agent marked as offline due to inactivity: Deployment Agent","service":"AgentManager","timestamp":"2025-07-25T09:55:52.836Z"}
