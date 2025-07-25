@@ -15,7 +15,7 @@ export async function GET() {
         status
       }
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { success: false, error: 'Failed to fetch agents' },
       { status: 500 }
@@ -55,8 +55,8 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: restarted });
 
       case 'message':
-        const { agentId, message } = params;
-        const sent = agentManager.sendMessageToAgent(agentId, message);
+        const { agentId: msgAgentId, message } = params;
+        const sent = agentManager.sendMessageToAgent(msgAgentId, message);
         return NextResponse.json({ success: sent });
 
       case 'start':
@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         );
     }
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { success: false, error: 'Failed to process request' },
       { status: 500 }

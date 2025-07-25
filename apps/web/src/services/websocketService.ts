@@ -1,16 +1,19 @@
 import { agentManager } from './agentService';
 
-export class WebSocketService {
-  private wss: any = null;
-  private clients: Set<any> = new Set();
+import { Server as WebSocketServer } from 'ws';
+import { Server as HTTPServer } from 'http';
 
-  constructor(server: any) {
-    this.wss = new (require('ws').Server)({ server });
+export class WebSocketService {
+  private wss: WebSocketServer | null = null;
+  private clients: Set<WebSocket> = new Set();
+
+  constructor(server: HTTPServer) {
+    this.wss = new WebSocketServer({ server });
     this.setupWebSocket();
   }
 
   private setupWebSocket() {
-    this.wss.on('connection', (ws: any) => {
+    this.    wss.on('connection', (ws: WebSocket) => {
       console.log('Client connected to WebSocket');
       this.clients.add(ws);
 
@@ -28,8 +31,8 @@ export class WebSocketService {
         try {
           const data = JSON.parse(message);
           this.handleMessage(ws, data);
-        } catch (error) {
-          console.error('Error parsing WebSocket message:', error);
+        } catch {
+          console.error('Error parsing WebSocket message');
         }
       });
 
@@ -38,8 +41,8 @@ export class WebSocketService {
         this.clients.delete(ws);
       });
 
-      ws.on('error', (error: any) => {
-        console.error('WebSocket error:', error);
+      ws.on('error', () => {
+        console.error('WebSocket error');
         this.clients.delete(ws);
       });
     });
@@ -72,7 +75,7 @@ export class WebSocketService {
     });
   }
 
-  private handleMessage(ws: any, message: any) {
+  private handleMessage(ws: WebSocket, message: { type: string; data: unknown }) {
     const { type, data } = message;
 
     switch (type) {
@@ -143,13 +146,13 @@ export class WebSocketService {
     }
   }
 
-  private sendToClient(ws: any, data: any) {
+  private sendToClient(ws: WebSocket, data: unknown) {
     if (ws.readyState === ws.OPEN) {
       ws.send(JSON.stringify(data));
     }
   }
 
-  private broadcast(data: any) {
+  private broadcast(data: unknown) {
     this.clients.forEach(client => {
       this.sendToClient(client, data);
     });

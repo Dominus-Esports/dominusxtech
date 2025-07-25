@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    depends_on:
+      - background-service
+    networks:
+      - agent-network
+    restart: unless-stopped
+
+  background-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.background
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+    networks:
+      - agent-network
+    restart: unless-stopped
+    volumes:
+      - ./logs:/app/logs
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - web
+      - background-service
+    networks:
+      - agent-network
+    restart: unless-stopped
+
+networks:
+  agent-network:
+    driver: bridge
+
+volumes:
+  logs:
