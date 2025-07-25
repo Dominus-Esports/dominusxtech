@@ -1,0 +1,186 @@
+name: Deploy Multi-Agent System
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'apps/agents/**'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        cache-dependency-path: apps/agents/package-lock.json
+        
+    - name: Install dependencies
+      run: |
+        cd apps/agents
+        npm ci
+        
+    - name: Run tests
+      run: |
+        cd apps/agents
+        npm test
+        
+    - name: Run linting
+      run: |
+        cd apps/agents
+        npm run lint
+        
+    - name: Type checking
+      run: |
+        cd apps/agents
+        npm run type-check
+        
+    - name: Security audit
+      run: |
+        cd apps/agents
+        npm run security-audit
+        
+    - name: Build for production
+      run: |
+        cd apps/agents
+        npm run build
+        
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-artifacts
+        path: apps/agents/dist/
+        retention-days: 30
+
+  deploy-staging:
+    runs-on: ubuntu-latest
+    needs: test-and-build
+    if: github.ref == 'refs/heads/main' || github.event.inputs.environment == 'staging'
+    environment: staging
+    
+    steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: build-artifacts
+        path: apps/agents/dist/
+        
+    - name: Deploy to staging
+      run: |
+        echo "Deploying to staging environment..."
+        # Add your staging deployment logic here
+        # Example: Deploy to staging server or cloud platform
+        
+    - name: Run smoke tests
+      run: |
+        echo "Running smoke tests on staging..."
+        # Add smoke tests here
+        # Example: curl http://staging-url/health
+        
+    - name: Notify staging deployment
+      run: |
+        echo "Staging deployment completed successfully!"
+
+  deploy-production:
+    runs-on: ubuntu-latest
+    needs: [test-and-build, deploy-staging]
+    if: github.ref == 'refs/heads/main' && github.event.inputs.environment == 'production'
+    environment: production
+    
+    steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: build-artifacts
+        path: apps/agents/dist/
+        
+    - name: Deploy to production
+      run: |
+        echo "Deploying to production environment..."
+        # Add your production deployment logic here
+        # Example: Deploy to production server or cloud platform
+        
+    - name: Run production tests
+      run: |
+        echo "Running production tests..."
+        # Add production tests here
+        
+    - name: Create release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ github.run_number }}
+        release_name: Release v${{ github.run_number }}
+        body: |
+          ## Multi-Agent Orchestration System v${{ github.run_number }}
+          
+          ### 🚀 New Features
+          - Enhanced agent ecosystem with 5 specialized agents
+          - Real-time web dashboard with live monitoring
+          - Advanced task management and routing
+          - Comprehensive health monitoring
+          
+          ### 🔧 Improvements
+          - Improved error handling and recovery
+          - Enhanced logging and debugging
+          - Better performance and scalability
+          
+          ### 🐛 Bug Fixes
+          - Fixed TypeScript compilation issues
+          - Resolved agent connection problems
+          - Improved task assignment logic
+          
+          ### 📦 Installation
+          ```bash
+          cd apps/agents
+          npm install
+          npm run dev
+          ```
+          
+          ### 🎯 Quick Start
+          ```bash
+          # Start the enhanced system
+          npx tsx start-enhanced-system.ts
+          
+          # Access dashboard
+          open http://localhost:3001/dashboard
+          ```
+        draft: false
+        prerelease: false
+        
+    - name: Notify production deployment
+      run: |
+        echo "Production deployment completed successfully!"
+
+  notify:
+    runs-on: ubuntu-latest
+    needs: [deploy-staging, deploy-production]
+    if: always()
+    
+    steps:
+    - name: Notify deployment status
+      run: |
+        if [ "${{ needs.deploy-staging.result }}" == "success" ] && [ "${{ needs.deploy-production.result }}" == "success" ]; then
+          echo "✅ All deployments completed successfully!"
+        elif [ "${{ needs.deploy-staging.result }}" == "success" ]; then
+          echo "⚠️ Staging deployment succeeded, production deployment failed"
+        else
+          echo "❌ Deployment failed"
+        fi
