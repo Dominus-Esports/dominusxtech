@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import styles from "./page.module.css";
 
 export default function Home() {
@@ -13,29 +14,22 @@ export default function Home() {
           height={38}
           priority
         />
-        <ol>
-          <li>
-            Get started by editing <code>src/app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+        <h1 className={styles.title}>Agent Management System</h1>
+        <p className={styles.description}>
+          Manage multiple AI agents alongside S.O.L. and launch new agents on demand.
+        </p>
 
         <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <Link href="/agents" className={styles.primary}>
             <Image
               className={styles.logo}
               src="/vercel.svg"
-              alt="Vercel logomark"
+              alt="Agent icon"
               width={20}
               height={20}
             />
-            Deploy now
-          </a>
+            Manage Agents
+          </Link>
           <a
             href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
             target="_blank"
