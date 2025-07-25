@@ -6,12 +6,16 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "background": "node scripts/backgroundService.js",
+    "dev:full": "concurrently \"npm run dev\" \"npm run background\""
   },
   "dependencies": {
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "next": "15.4.3"
+    "next": "15.4.3",
+    "ws": "^8.16.0",
+    "concurrently": "^8.2.2"
   },
   "devDependencies": {
     "typescript": "^5",
