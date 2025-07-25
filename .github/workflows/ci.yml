@@ -1,0 +1,169 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: apps/web/package-lock.json
+        
+    - name: Install dependencies
+      run: |
+        cd apps/web
+        npm ci
+        
+    - name: Run linting
+      run: |
+        cd apps/web
+        npm run lint
+        
+    - name: Run type checking
+      run: |
+        cd apps/web
+        npm run type-check
+        
+    - name: Run tests
+      run: |
+        cd apps/web
+        npm run test
+        
+    - name: Build application
+      run: |
+        cd apps/web
+        npm run build
+        
+  security:
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        cache-dependency-path: apps/web/package-lock.json
+        
+    - name: Install dependencies
+      run: |
+        cd apps/web
+        npm ci
+        
+    - name: Run security audit
+      run: |
+        cd apps/web
+        npm audit --audit-level moderate
+        
+    - name: Run dependency check
+      run: |
+        cd apps/web
+        npm outdated
+        
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [test, security]
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        cache-dependency-path: apps/web/package-lock.json
+        
+    - name: Install dependencies
+      run: |
+        cd apps/web
+        npm ci
+        
+    - name: Build application
+      run: |
+        cd apps/web
+        npm run build
+        
+    - name: Deploy to Vercel
+      uses: amondnet/vercel-action@v25
+      with:
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+        working-directory: ./apps/web
+        
+  release:
+    runs-on: ubuntu-latest
+    needs: [test, security, deploy]
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        
+    - name: Create Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ github.run_number }}
+        release_name: Release v${{ github.run_number }}
+        body: |
+          ## 🚀 Multi-Agent Management System Release
+          
+          ### What's New
+          - Enhanced agent collaboration capabilities
+          - Real-time performance monitoring
+          - Interactive network visualization
+          - Advanced notification system
+          
+          ### Technical Improvements
+          - Improved TypeScript type safety
+          - Enhanced error handling
+          - Better performance optimization
+          - Updated dependencies
+          
+          ### Bug Fixes
+          - Fixed agent status updates
+          - Resolved task queue issues
+          - Improved UI responsiveness
+          
+          ### Installation
+          ```bash
+          npm install
+          npm run dev
+          ```
+          
+          ### Documentation
+          See [README.md](README.md) for detailed setup and usage instructions.
+        draft: false
+        prerelease: false
